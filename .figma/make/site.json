@@ -1,0 +1,11 @@
+{
+  "title": "Amit Portfolio",
+  "description": "Showcase your portfolio with a visually stunning, highly animated interface featuring smooth scrolling and unique design to captivate viewers.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

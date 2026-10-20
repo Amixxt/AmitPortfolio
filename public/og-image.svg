@@ -1,0 +1,18 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#121212"/>
+  <circle cx="1058" cy="86" r="232" stroke="#D4FF00" stroke-opacity=".16" stroke-width="2"/>
+  <circle cx="1058" cy="86" r="170" stroke="#F4F4F0" stroke-opacity=".08"/>
+  <path d="M0 532H1200" stroke="#F4F4F0" stroke-opacity=".18"/>
+  <path d="M88 0V630M1112 0V630" stroke="#F4F4F0" stroke-opacity=".06"/>
+  <rect x="88" y="58" width="10" height="10" rx="5" fill="#D4FF00"/>
+  <text x="116" y="68" fill="#F4F4F0" font-family="Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="2">AMIT / PORTFOLIO</text>
+  <text x="1112" y="68" fill="#AAA9A2" font-family="Arial, sans-serif" font-size="13" text-anchor="end" letter-spacing="1.5">CSE STUDENT · DEVELOPER</text>
+  <text x="78" y="265" fill="#F4F4F0" font-family="Arial, sans-serif" font-size="156" font-weight="700" letter-spacing="-12">CODE WITH</text>
+  <text x="78" y="420" fill="#F4F4F0" font-family="Arial, sans-serif" font-size="156" font-weight="700" letter-spacing="-12">BITE</text>
+  <text x="433" y="420" fill="#D4FF00" font-family="Georgia, serif" font-size="172" font-style="italic">.</text>
+  <rect x="821" y="320" width="291" height="112" rx="56" stroke="#D4FF00" stroke-width="2"/>
+  <text x="966.5" y="368" fill="#D4FF00" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" letter-spacing="2">BUILD · LEARN · DEBUG</text>
+  <text x="966.5" y="393" fill="#AAA9A2" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" letter-spacing="1.5">FULL-STACK + AI</text>
+  <text x="88" y="579" fill="#AAA9A2" font-family="Arial, sans-serif" font-size="16">Thoughtful software. Clear systems. Useful outcomes.</text>
+  <text x="1112" y="579" fill="#D4FF00" font-family="Arial, sans-serif" font-size="16" font-weight="700" text-anchor="end">OPEN TO INTERNSHIPS</text>
+</svg>
