@@ -706,7 +706,7 @@ export default function App() {
                 <span>
                   <strong>Something went wrong.</strong>
                   Try again or email{" "}
-                  <a href="mailto:hydranarcoo@gmail.com">
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hydranarcoo@gmail.com" target="_blank" rel="noreferrer">
                     hydranarcoo@gmail.com
                   </a>
                   .
@@ -739,7 +739,13 @@ export default function App() {
             >
               Instagram
             </a>
-            <a href="mailto:hydranarcoo@gmail.com">Email</a>
+            <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=hydranarcoo@gmail.com"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Email
+            </a>
           </div>
           <a href="#top">Back to top ↑</a>
         </footer>
