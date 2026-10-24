@@ -548,20 +548,21 @@ export default function App() {
           <a href="#contact" onClick={closeMenu}>
             Contact
           </a>
-        </div>
-        <div className="nav-actions-right">
           <button
             type="button"
             className="nav-ai-btn"
-            onClick={() => setAiWidgetOpen(true)}
+            onClick={() => {
+              closeMenu()
+              setAiWidgetOpen(true)
+            }}
             title="Ask Amit's AI Assistant"
           >
-            <span className="sparkle">✦</span> Ask AI
+            <span className="sparkle">&#10022;</span> Ask AI
           </button>
-          <div className="availability">
-            <span />
-            Open to internships
-          </div>
+        </div>
+        <div className="availability">
+          <span />
+          Open to internships
         </div>
         <button
           className="menu-button"
@@ -953,7 +954,7 @@ export default function App() {
       {/* Floating AI Assistant Launcher Button */}
       <button
         type="button"
-        className="portfolio-floating-ai-btn"
+        className={`portfolio-floating-ai-btn ${scrollProgress > 0.05 ? "is-visible" : ""}`}
         onClick={() => setAiWidgetOpen((open) => !open)}
         title="Chat with Amit's AI Assistant"
         aria-label="Open AI Assistant"

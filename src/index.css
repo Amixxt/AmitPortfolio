@@ -150,7 +150,9 @@ img {
 
 .nav-links {
   display: flex;
-  gap: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
   font-size: 13px;
   text-transform: uppercase;
 }
@@ -2368,5 +2370,54 @@ footer > a {
   .portfolio-ai-drawer {
     width: 100%;
     height: 75vh;
+  }
+}
+
+
+/* Centered Navbar Ask AI button */
+.nav-links .nav-ai-btn {
+  background: rgba(212, 255, 0, 0.1);
+  border: 1px solid var(--accent-lime);
+  color: var(--accent-lime);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.nav-links .nav-ai-btn:hover {
+  background: var(--accent-lime);
+  color: var(--text-dark);
+  transform: translateY(-1px);
+}
+
+.portfolio-floating-ai-btn {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.portfolio-floating-ai-btn.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+@media (max-width: 800px) {
+  .nav-links .nav-ai-btn {
+    font-size: 15px;
+    padding: 10px 22px;
+    margin-top: 14px;
+    background: var(--ink);
+    color: var(--accent-lime);
+    border: 1px solid var(--ink);
   }
 }
