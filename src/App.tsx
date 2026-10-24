@@ -1,9 +1,10 @@
-import { type FormEvent, useEffect, useState } from "react"
+import { type FormEvent, useEffect, useState, useRef } from "react"
 
 const projects = [
   {
     number: "01",
     title: "Campus Connect",
+    category: "fullstack",
     type: "React · Node.js · PostgreSQL",
     year: "2025",
     problem:
@@ -18,6 +19,7 @@ const projects = [
   {
     number: "02",
     title: "Focus Flow",
+    category: "frontend",
     type: "TypeScript · REST API · Firebase",
     year: "2025",
     problem:
@@ -32,6 +34,7 @@ const projects = [
   {
     number: "03",
     title: "Vision AI",
+    category: "ai",
     type: "Python · OpenCV · Machine Learning",
     year: "2024",
     problem:
@@ -46,6 +49,7 @@ const projects = [
   {
     number: "04",
     title: "Algo Visualizer",
+    category: "algo",
     type: "JavaScript · DSA · Canvas API",
     year: "2023",
     problem:
@@ -57,6 +61,14 @@ const projects = [
     liveUrl: null,
     repoUrl: null,
   },
+]
+
+const projectFilters = [
+  { id: "all", label: "All Projects" },
+  { id: "fullstack", label: "Full-Stack" },
+  { id: "frontend", label: "Frontend & TS" },
+  { id: "ai", label: "AI & ML" },
+  { id: "algo", label: "Algorithms" },
 ]
 
 const toolkit = [
@@ -106,31 +118,7 @@ const Check = () => (
   </svg>
 )
 
-const NotFound = () => (
-  <main className="not-found">
-    <a className="not-found-brand" href="/" aria-label="Amit's portfolio, home">
-      AM<span>IT</span>
-    </a>
-    <div>
-      <p className="eyebrow">Error / 404</p>
-      <h1>
-        Lost in the
-        <br />
-        <em>source.</em>
-      </h1>
-      <p>
-        This route does not exist. The code is fine—you’ve just wandered beyond
-        the build.
-      </p>
-      <a className="not-found-link" href="/">
-        Return home <Arrow diagonal />
-      </a>
-    </div>
-    <span className="not-found-code">404</span>
-  </main>
-)
-
-const ProjectPreview = ({ index, title }: { index: number title: string }) => (
+const ProjectPreview = ({ index, title }: { index: number; title: string }) => (
   <div
     className={`product-preview preview-${index + 1}`}
     role="img"
@@ -150,33 +138,25 @@ const ProjectPreview = ({ index, title }: { index: number title: string }) => (
 
     {index === 0 && (
       <div className="campus-ui">
-        <aside>
-          <strong>CC</strong>
-          <span className="active" />
-          <span />
-          <span />
-          <span />
-        </aside>
-        <div className="campus-main">
-          <p>Good morning, Amit</p>
-          <h4>
-            What’s happening
-            <br />
-            on campus?
-          </h4>
-          <div className="campus-stats">
-            <article>
-              <span>Upcoming</span>
-              <strong>08</strong>
-            </article>
-            <article>
-              <span>Communities</span>
-              <strong>24</strong>
-            </article>
+        <div className="campus-hero">
+          <div>
+            <span>COMMUNITY PULSE</span>
+            <strong>Design Jam '25</strong>
           </div>
-          <div className="campus-event">
-            <span>Today · 4:30 PM</span>
-            <strong>Developer Meetup</strong>
+          <button type="button">Join</button>
+        </div>
+        <div className="campus-grid">
+          <div>
+            <span>42</span>
+            <strong>Teams</strong>
+          </div>
+          <div>
+            <span>360</span>
+            <strong>RSVPs</strong>
+          </div>
+          <div>
+            <span>12d</span>
+            <strong>To build</strong>
           </div>
         </div>
       </div>
@@ -184,19 +164,14 @@ const ProjectPreview = ({ index, title }: { index: number title: string }) => (
 
     {index === 1 && (
       <div className="focus-ui">
-        <div className="focus-nav">
-          <strong>focus/flow</strong>
-          <span>Dashboard&nbsp;&nbsp; Sessions</span>
-        </div>
         <div className="focus-content">
-          <p>Deep work session</p>
           <div className="timer-ring">
-            <strong>48:12</strong>
-            <span>FOCUS</span>
+            <strong>25:00</strong>
+            <span>DEEP WORK</span>
           </div>
           <div className="focus-actions">
-            <span>Pause</span>
-            <span>Finish session</span>
+            <span>START</span>
+            <span>RESET</span>
           </div>
           <div className="weekly-progress">
             <span>Weekly focus</span>
@@ -254,8 +229,27 @@ export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [openToolkit, setOpenToolkit] = useState<string | null>("01")
+  const [selectedCategory, setSelectedCategory] = useState("all")
   const [contactStatus, setContactStatus] =
     useState<"idle" | "submitting" | "success" | "error">("idle")
+
+  // Interactive AI Assistant State
+  const [aiWidgetOpen, setAiWidgetOpen] = useState(false)
+  const [aiMessages, setAiMessages] = useState<
+    Array<{ sender: "bot" | "user"; text: string }>
+  >([
+    {
+      sender: "bot",
+      text: "Hello! I am Amit's portfolio assistant. Ask me about his technical skills, projects, or internship availability!",
+    },
+  ])
+  const [aiInput, setAiInput] = useState("")
+  const [isAiTyping, setIsAiTyping] = useState(false)
+  const chatBottomRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [aiMessages, isAiTyping])
 
   useEffect(() => {
     const updateProgress = () => {
@@ -278,45 +272,219 @@ export default function App() {
     window.addEventListener("scroll", updateProgress, { passive: true })
     updateProgress()
 
+    const cursor = document.querySelector(".cursor") as HTMLElement | null
+    const follower = document.querySelector(
+      ".cursor-follower",
+    ) as HTMLElement | null
+
+    if (cursor && follower && window.matchMedia("(pointer: fine)").matches) {
+      let mouseX = 0
+      let mouseY = 0
+      let followerX = 0
+      let followerY = 0
+
+      const move = (event: MouseEvent) => {
+        mouseX = event.clientX
+        mouseY = event.clientY
+        cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`
+      }
+
+      const animateFollower = () => {
+        followerX += (mouseX - followerX) * 0.16
+        followerY += (mouseY - followerY) * 0.16
+        follower.style.transform = `translate3d(${followerX}px, ${followerY}px, 0)`
+        requestAnimationFrame(animateFollower)
+      }
+
+      const grow = () => document.body.classList.add("cursor-grow")
+      const shrink = () => document.body.classList.remove("cursor-grow")
+
+      window.addEventListener("mousemove", move)
+      requestAnimationFrame(animateFollower)
+
+      const interactive = document.querySelectorAll(
+        "a, button, input, textarea, .service-row",
+      )
+      interactive.forEach((item) => {
+        item.addEventListener("mouseenter", grow)
+        item.addEventListener("mouseleave", shrink)
+      })
+
+      return () => {
+        window.removeEventListener("scroll", updateProgress)
+        revealObserver.disconnect()
+        window.removeEventListener("mousemove", move)
+        interactive.forEach((item) => {
+          item.removeEventListener("mouseenter", grow)
+          item.removeEventListener("mouseleave", shrink)
+        })
+      }
+    }
+
     return () => {
-      revealObserver.disconnect()
       window.removeEventListener("scroll", updateProgress)
+      revealObserver.disconnect()
     }
   }, [])
 
+  // Interactive Particle Canvas Background
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) return
-    const cursor = document.querySelector<HTMLElement>(".cursor")
-    const follower = document.querySelector<HTMLElement>(".cursor-follower")
-    if (!cursor || !follower) return
+    const canvas = document.getElementById(
+      "portfolio-bg-canvas",
+    ) as HTMLCanvasElement | null
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
 
-    const move = (event: MouseEvent) => {
-      cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`
-      follower.animate(
-        { transform: `translate3d(${event.clientX}px, ${event.clientY}px, 0)` },
-        { duration: 450, fill: "forwards", easing: "cubic-bezier(.2,.8,.2,1)" },
-      )
+    let width = (canvas.width = window.innerWidth)
+    let height = (canvas.height = window.innerHeight)
+    const particleCount = Math.min(Math.floor((width * height) / 22000), 45)
+    const particles: Array<{
+      x: number
+      y: number
+      vx: number
+      vy: number
+      r: number
+    }> = []
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        r: Math.random() * 1.5 + 1,
+      })
     }
-    const grow = () => follower.classList.add("cursor-active")
-    const shrink = () => follower.classList.remove("cursor-active")
-    const interactive = document.querySelectorAll("a, button, .project-card")
 
-    window.addEventListener("mousemove", move)
-    interactive.forEach((item) => {
-      item.addEventListener("mouseenter", grow)
-      item.addEventListener("mouseleave", shrink)
-    })
+    let animId: number
+    const render = () => {
+      ctx.clearRect(0, 0, width, height)
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
+        p.x += p.vx
+        p.y += p.vy
+        if (p.x < 0 || p.x > width) p.vx *= -1
+        if (p.y < 0 || p.y > height) p.vy *= -1
+
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.fillStyle = "rgba(212, 255, 0, 0.45)"
+        ctx.fill()
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j]
+          const dx = p.x - p2.x
+          const dy = p.y - p2.y
+          const d = Math.sqrt(dx * dx + dy * dy)
+          if (d < 110) {
+            ctx.beginPath()
+            ctx.strokeStyle = `rgba(212, 255, 0, ${(1 - d / 110) * 0.12})`
+            ctx.lineWidth = 0.65
+            ctx.moveTo(p.x, p.y)
+            ctx.lineTo(p2.x, p2.y)
+            ctx.stroke()
+          }
+        }
+      }
+      animId = requestAnimationFrame(render)
+    }
+    render()
+
+    const onResize = () => {
+      width = canvas.width = window.innerWidth
+      height = canvas.height = window.innerHeight
+    }
+    window.addEventListener("resize", onResize, { passive: true })
 
     return () => {
-      window.removeEventListener("mousemove", move)
-      interactive.forEach((item) => {
-        item.removeEventListener("mouseenter", grow)
-        item.removeEventListener("mouseleave", shrink)
-      })
+      cancelAnimationFrame(animId)
+      window.removeEventListener("resize", onResize)
     }
   }, [])
 
   const closeMenu = () => setMenuOpen(false)
+
+  // Smart AI Engine
+  const generateAiAnswer = (query: string): string => {
+    const q = query.toLowerCase().trim()
+    if (
+      q.includes("skill") ||
+      q.includes("stack") ||
+      q.includes("tech") ||
+      q.includes("language") ||
+      q.includes("c++")
+    ) {
+      return "Amit's core technical competencies include:\n• Primary Languages: C++, TypeScript, JavaScript, Python\n• Frontend: React, Next.js, HTML5, CSS3, Tailwind\n• Backend & Databases: Node.js, Express, REST APIs, SQL, PostgreSQL, Firebase\n• CS Fundamentals: Data Structures & Algorithms, Object-Oriented Programming (OOP), Git/GitHub."
+    }
+    if (
+      q.includes("project") ||
+      q.includes("work") ||
+      q.includes("built") ||
+      q.includes("vision") ||
+      q.includes("campus") ||
+      q.includes("focus")
+    ) {
+      return "Here are Amit's key featured projects:\n1. Campus Connect — Full-stack campus hub built with React, Node.js & PostgreSQL.\n2. Focus Flow — Typed productivity session timer with TypeScript & Firebase.\n3. Vision AI — Computer vision prototype with Python & OpenCV with real-time confidence feedback.\n4. Algo Visualizer — Interactive Canvas-based sorting algorithm explorer."
+    }
+    if (
+      q.includes("college") ||
+      q.includes("education") ||
+      q.includes("degree") ||
+      q.includes("btech") ||
+      q.includes("b.tech")
+    ) {
+      return "Amit is currently in his 3rd year pursuing B.Tech in Computer Science & Engineering at Global Institute of Engineering, Jabalpur (expected graduation in 2026). He completed his 12th science education from Green Valley Public School."
+    }
+    if (
+      q.includes("intern") ||
+      q.includes("hire") ||
+      q.includes("job") ||
+      q.includes("role") ||
+      q.includes("available")
+    ) {
+      return "Yes! Amit is actively open for Software Engineering and Full-Stack Development internships. He brings solid fundamentals in C++, problem solving, clean frontend engineering, and rapid learning ability to tech teams."
+    }
+    if (
+      q.includes("contact") ||
+      q.includes("email") ||
+      q.includes("phone") ||
+      q.includes("reach") ||
+      q.includes("call")
+    ) {
+      return "You can get in touch with Amit directly:\n• Email: hydranarcoo@gmail.com\n• Phone: +91 8109315812\n• GitHub: github.com/Amixxt\n• LinkedIn: linkedin.com/in/amixxt\n• Instagram: @why_amixt"
+    }
+    if (q.includes("location") || q.includes("where") || q.includes("city")) {
+      return "Amit is based in Jabalpur, Madhya Pradesh, India (482004). He is available for remote opportunities as well as on-site internship roles."
+    }
+    return "Amit is a 3rd-year CSE student building thoughtful full-stack applications and AI experiments. Feel free to ask about his skills, projects, or reach out to him directly at hydranarcoo@gmail.com!"
+  }
+
+  const handleAiSubmit = (
+    e?: FormEvent<HTMLFormElement>,
+    customQuery?: string,
+  ) => {
+    if (e) e.preventDefault()
+    const query = customQuery || aiInput
+    if (!query.trim()) return
+
+    const newMessages = [
+      ...aiMessages,
+      { sender: "user" as const, text: query },
+    ]
+    setAiMessages(newMessages)
+    if (!customQuery) setAiInput("")
+    setIsAiTyping(true)
+
+    setTimeout(() => {
+      setIsAiTyping(false)
+      const answer = generateAiAnswer(query)
+      setAiMessages((prev) => [
+        ...prev,
+        { sender: "bot" as const, text: answer },
+      ])
+    }, 400)
+  }
 
   const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -339,15 +507,20 @@ export default function App() {
     }
   }
 
-  if (
-    window.location.pathname !== "/" &&
-    window.location.pathname !== "/index.html"
-  ) {
-    return <NotFound />
-  }
+  const filteredProjects =
+    selectedCategory === "all"
+      ? projects
+      : projects.filter((p) => p.category === selectedCategory)
 
   return (
-    <main>
+    <main className="portfolio" id="top">
+      {/* Interactive Particle Canvas */}
+      <canvas
+        id="portfolio-bg-canvas"
+        className="portfolio-bg-canvas"
+        aria-hidden="true"
+      />
+
       <div className="cursor" />
       <div className="cursor-follower" />
       <div className="noise" />
@@ -376,9 +549,19 @@ export default function App() {
             Contact
           </a>
         </div>
-        <div className="availability">
-          <span />
-          Open to internships
+        <div className="nav-actions-right">
+          <button
+            type="button"
+            className="nav-ai-btn"
+            onClick={() => setAiWidgetOpen(true)}
+            title="Ask Amit's AI Assistant"
+          >
+            <span className="sparkle">✦</span> Ask AI
+          </button>
+          <div className="availability">
+            <span />
+            Open to internships
+          </div>
         </div>
         <button
           className="menu-button"
@@ -429,12 +612,10 @@ export default function App() {
             className="round-link"
             aria-label="Explore selected work"
           >
-            <span>Scroll to explore</span>
-            <Arrow />
+            <span>
+              Explore work <Arrow diagonal />
+            </span>
           </a>
-        </div>
-        <div className="orbit orbit-one">
-          <span>Build · Learn · Debug · Repeat · </span>
         </div>
       </section>
 
@@ -465,8 +646,22 @@ export default function App() {
           </p>
         </header>
 
+        {/* Interactive Category Filter Tabs */}
+        <div className="project-filter-tabs reveal">
+          {projectFilters.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`project-filter-pill ${selectedCategory === tab.id ? "active" : ""}`}
+              onClick={() => setSelectedCategory(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         <div className="projects">
-          {projects.map((project, index) => (
+          {filteredProjects.map((project, index) => (
             <article
               className={`project-card reveal project-${index + 1}`}
               key={project.title}
@@ -541,6 +736,7 @@ export default function App() {
             <span className="portrait-label">Currently compiling...</span>
           </div>
         </div>
+
         <div className="about-copy reveal">
           <h2>
             Curious mind.
@@ -579,13 +775,13 @@ export default function App() {
           </div>
           <a
             className="text-link resume-link"
-            href="https://github.com/Amixxt/Resume"
+            href="https://resume-zeta-umber-36.vercel.app/"
             target="_blank"
             rel="noreferrer"
           >
             <span>
               View my résumé
-              <small>GitHub-hosted · opens in a new tab</small>
+              <small>Interactive digital resume · opens in a new tab</small>
             </span>
             <Arrow diagonal />
           </a>
@@ -604,7 +800,6 @@ export default function App() {
         <div className="service-list">
           {toolkit.map(({ number, title, stack, description }) => {
             const isOpen = openToolkit === number
-
             return (
               <div
                 className={`service-item reveal ${isOpen ? "is-open" : ""}`}
@@ -706,7 +901,11 @@ export default function App() {
                 <span>
                   <strong>Something went wrong.</strong>
                   Try again or email{" "}
-                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hydranarcoo@gmail.com" target="_blank" rel="noreferrer">
+                  <a
+                    href="https://mail.google.com/mail/?view=cm&fs=1&to=hydranarcoo@gmail.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     hydranarcoo@gmail.com
                   </a>
                   .
@@ -750,6 +949,130 @@ export default function App() {
           <a href="#top">Back to top ↑</a>
         </footer>
       </section>
+
+      {/* Floating AI Assistant Launcher Button */}
+      <button
+        type="button"
+        className="portfolio-floating-ai-btn"
+        onClick={() => setAiWidgetOpen((open) => !open)}
+        title="Chat with Amit's AI Assistant"
+        aria-label="Open AI Assistant"
+      >
+        <span className="ai-pulse-dot" />
+        <span className="ai-icon">✦</span>
+        <span className="ai-btn-text">Ask Amit AI</span>
+      </button>
+
+      {/* Interactive AI Assistant Modal Drawer */}
+      <div
+        className={`portfolio-ai-drawer-overlay ${aiWidgetOpen ? "is-open" : ""}`}
+        onClick={() => setAiWidgetOpen(false)}
+      >
+        <div
+          className="portfolio-ai-drawer"
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-label="Amit's AI Assistant"
+        >
+          <div className="portfolio-ai-header">
+            <div className="portfolio-ai-header-left">
+              <span className="portfolio-ai-badge">✦</span>
+              <div>
+                <h4>Amit's Assistant</h4>
+                <p>
+                  <span className="live-dot" /> Online · 3rd Year B.Tech CSE
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="portfolio-ai-close-btn"
+              onClick={() => setAiWidgetOpen(false)}
+              aria-label="Close Assistant"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Quick Prompts */}
+          <div className="portfolio-ai-chips">
+            <button
+              type="button"
+              onClick={() =>
+                handleAiSubmit(undefined, "What are Amit's main skills?")
+              }
+            >
+              ⚡ Skills
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                handleAiSubmit(undefined, "Tell me about your projects")
+              }
+            >
+              💻 Projects
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                handleAiSubmit(
+                  undefined,
+                  "Are you available for internships?",
+                )
+              }
+            >
+              🎯 Internship
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                handleAiSubmit(undefined, "How can I contact Amit?")
+              }
+            >
+              📬 Contact
+            </button>
+          </div>
+
+          {/* Chat Messages */}
+          <div className="portfolio-ai-messages">
+            {aiMessages.map((msg, i) => (
+              <div
+                key={i}
+                className={`portfolio-ai-msg ${msg.sender === "user" ? "msg-user" : "msg-bot"}`}
+              >
+                <div className="msg-content">{msg.text}</div>
+              </div>
+            ))}
+            {isAiTyping && (
+              <div className="portfolio-ai-msg msg-bot">
+                <div className="msg-content msg-typing">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </div>
+            )}
+            <div ref={chatBottomRef} />
+          </div>
+
+          {/* Input Form */}
+          <form
+            className="portfolio-ai-input-form"
+            onSubmit={(e) => handleAiSubmit(e)}
+          >
+            <input
+              type="text"
+              placeholder="Ask about Amit's skills, projects..."
+              value={aiInput}
+              onChange={(e) => setAiInput(e.target.value)}
+              autoFocus
+            />
+            <button type="submit" aria-label="Send">
+              <Arrow diagonal />
+            </button>
+          </form>
+        </div>
+      </div>
     </main>
   )
 }
