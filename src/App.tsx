@@ -299,25 +299,30 @@ export default function App() {
       const grow = () => document.body.classList.add("cursor-grow")
       const shrink = () => document.body.classList.remove("cursor-grow")
 
-      window.addEventListener("mousemove", move)
-      requestAnimationFrame(animateFollower)
+      const handleMouseOver = (e: MouseEvent) => {
+        const target = (e.target as HTMLElement | null)?.closest(
+          "a, button, input, textarea, .service-row, .portfolio-ai-chips button, .portfolio-ai-close-btn, .project-filter-pill, .nav-ai-btn",
+        )
+        if (target) grow()
+      }
+      const handleMouseOut = (e: MouseEvent) => {
+        const target = (e.target as HTMLElement | null)?.closest(
+          "a, button, input, textarea, .service-row, .portfolio-ai-chips button, .portfolio-ai-close-btn, .project-filter-pill, .nav-ai-btn",
+        )
+        if (target) shrink()
+      }
 
-      const interactive = document.querySelectorAll(
-        "a, button, input, textarea, .service-row",
-      )
-      interactive.forEach((item) => {
-        item.addEventListener("mouseenter", grow)
-        item.addEventListener("mouseleave", shrink)
-      })
+      window.addEventListener("mousemove", move)
+      window.addEventListener("mouseover", handleMouseOver)
+      window.addEventListener("mouseout", handleMouseOut)
+      requestAnimationFrame(animateFollower)
 
       return () => {
         window.removeEventListener("scroll", updateProgress)
         revealObserver.disconnect()
         window.removeEventListener("mousemove", move)
-        interactive.forEach((item) => {
-          item.removeEventListener("mouseenter", grow)
-          item.removeEventListener("mouseleave", shrink)
-        })
+        window.removeEventListener("mouseover", handleMouseOver)
+        window.removeEventListener("mouseout", handleMouseOut)
       }
     }
 

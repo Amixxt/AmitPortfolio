@@ -68,34 +68,44 @@ img {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 9999999 !important;
   pointer-events: none;
   border-radius: 50%;
   transform: translate3d(-100px, -100px, 0);
+  will-change: transform;
 }
 
 .cursor {
-  width: 7px;
-  height: 7px;
-  margin: -3px;
-  background: var(--ink);
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  background: var(--accent-lime);
+  border: 1.5px solid #121212;
+  box-shadow: 0 0 10px rgba(212, 255, 0, 0.95);
 }
 
 .cursor-follower {
   width: 38px;
   height: 38px;
   margin: -19px;
-  border: 1px solid var(--ink);
-  transition: width 0.25s, height 0.25s, margin 0.25s, background 0.25s;
+  border: 1.5px solid var(--accent-lime);
+  background: rgba(212, 255, 0, 0.06);
+  box-shadow: 0 0 14px rgba(212, 255, 0, 0.28);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              margin 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.25s ease,
+              border-color 0.25s ease;
 }
 
-.cursor-follower.cursor-active {
-  width: 66px;
-  height: 66px;
-  margin: -33px;
-  background: rgba(200, 255, 0, 0.75);
-  border-color: transparent;
-  mix-blend-mode: multiply;
+.cursor-follower.cursor-active,
+body.cursor-grow .cursor-follower {
+  width: 58px;
+  height: 58px;
+  margin: -29px;
+  background: rgba(212, 255, 0, 0.22);
+  border-color: var(--accent-lime);
+  box-shadow: 0 0 24px rgba(212, 255, 0, 0.5);
 }
 
 .noise {
@@ -2420,4 +2430,22 @@ footer > a {
     color: var(--accent-lime);
     border: 1px solid var(--ink);
   }
+}
+/* AI Drawer Cursor & Visibility Enhancements */
+.portfolio-ai-drawer-overlay {
+  z-index: 99999;
+}
+
+.portfolio-ai-drawer {
+  z-index: 100000;
+}
+
+.portfolio-ai-input-form input {
+  cursor: text !important;
+}
+
+.portfolio-ai-chips button,
+.portfolio-ai-close-btn,
+.portfolio-ai-input-form button {
+  cursor: pointer !important;
 }
