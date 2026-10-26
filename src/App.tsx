@@ -410,7 +410,28 @@ export default function App() {
 
   const closeMenu = () => setMenuOpen(false)
 
-  // Smart AI Engine
+  // Authentic System Prompt for Amit Kushwaha
+  const AMIT_AI_SYSTEM_PROMPT = `You are Amit's friendly personal AI assistant on his portfolio website (amixtportfolio.vercel.app).
+Amit Kushwaha is a 3rd-year B.Tech Computer Science & Engineering student at Global Institute of Engineering, Jabalpur (expected graduation: 2026). He completed his 12th standard (Science) from Green Valley Public School, Jabalpur.
+- Technical Skills:
+  * Languages: C, C++, TypeScript, JavaScript (ES6+), Python
+  * Frontend: React, Next.js, HTML5, modern CSS3, Tailwind CSS
+  * Backend & Databases: Node.js, Express, REST APIs, SQL, PostgreSQL, Firebase
+  * Core Fundamentals: Data Structures & Algorithms, Object-Oriented Programming (OOP), Git/GitHub
+- Featured Projects:
+  1. Campus Connect: Full-stack campus hub built with React, Node.js & PostgreSQL.
+  2. Focus Flow: Typed productivity session timer with TypeScript & Firebase.
+  3. Vision AI: Computer vision prototype with Python & OpenCV with real-time confidence feedback.
+  4. Algo Visualizer: Interactive Canvas-based sorting algorithm explorer.
+  5. Interactive ATS Resume: Accessible, responsive portfolio and resume engine.
+- Internship & Opportunities: Actively seeking Software Engineering and Full-Stack Development internships (open for remote and on-site opportunities).
+- Contact Info: Email: hydranarcoo@gmail.com, Phone: +91 8109315812, Location: Jabalpur, Madhya Pradesh, India (PIN 482004), GitHub: github.com/Amixxt, LinkedIn: linkedin.com/in/amixxt, Instagram: @why_amixt
+- Guidelines:
+  * Respond warmly, politely, and enthusiastically in 2 to 3 concise sentences.
+  * Adapt to the user's language: if greeted or asked in Hindi or Hinglish (e.g., "kaise ho", "kya chal raha hai", "batao", "kya skills hai"), reply warmly in natural Hinglish/Hindi. If asked in English, reply in crisp English.
+  * Stick strictly to Amit's true background and skills.`;
+
+  // Local Fallback Knowledge Base Engine
   const generateAiAnswer = (query: string): string => {
     const q = query.toLowerCase().trim()
     if (
@@ -459,13 +480,41 @@ export default function App() {
     ) {
       return "You can get in touch with Amit directly:\n• Email: hydranarcoo@gmail.com\n• Phone: +91 8109315812\n• GitHub: github.com/Amixxt\n• LinkedIn: linkedin.com/in/amixxt\n• Instagram: @why_amixt"
     }
-    if (q.includes("location") || q.includes("where") || q.includes("city")) {
+    if (q.includes("location") || q.includes("where") || q.includes("city") || q.includes("jabalpur")) {
       return "Amit is based in Jabalpur, Madhya Pradesh, India (482004). He is available for remote opportunities as well as on-site internship roles."
+    }
+    if (q.includes("hello") || q.includes("hi") || q.includes("hey") || q.includes("namaste") || q.includes("kaise")) {
+      return "Hey! Great to connect with you. I can assist you with details regarding Amit's projects, tech stack, academic credentials, or internship availability. What would you like to know?"
     }
     return "Amit is a 3rd-year CSE student building thoughtful full-stack applications and AI experiments. Feel free to ask about his skills, projects, or reach out to him directly at hydranarcoo@gmail.com!"
   }
 
-  const handleAiSubmit = (
+  // Real-time AI Fetch with Timeout & Fallback
+  const fetchRealAiResponse = async (userQuery: string): Promise<string> => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 6500)
+
+    const fullPrompt = `${AMIT_AI_SYSTEM_PROMPT}\n\nUser Question: ${userQuery}\n\nHelpful, concise answer as Amit's Assistant:`
+    const url = `https://text.pollinations.ai/${encodeURIComponent(fullPrompt)}`
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const text = await response.text()
+      if (!text || !text.trim()) throw new Error("Empty response")
+      return text.trim()
+    } catch (err) {
+      clearTimeout(timeoutId)
+      console.warn("Real AI endpoint unavailable, using local knowledge engine:", err)
+      return generateAiAnswer(userQuery)
+    }
+  }
+
+  const handleAiSubmit = async (
     e?: FormEvent<HTMLFormElement>,
     customQuery?: string,
   ) => {
@@ -481,16 +530,22 @@ export default function App() {
     if (!customQuery) setAiInput("")
     setIsAiTyping(true)
 
-    setTimeout(() => {
+    try {
+      const botReply = await fetchRealAiResponse(query)
       setIsAiTyping(false)
-      const answer = generateAiAnswer(query)
       setAiMessages((prev) => [
         ...prev,
-        { sender: "bot" as const, text: answer },
+        { sender: "bot" as const, text: botReply },
       ])
-    }, 400)
+    } catch {
+      setIsAiTyping(false)
+      const fallback = generateAiAnswer(query)
+      setAiMessages((prev) => [
+        ...prev,
+        { sender: "bot" as const, text: fallback },
+      ])
+    }
   }
-
   const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
